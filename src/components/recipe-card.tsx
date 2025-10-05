@@ -3,7 +3,7 @@ import {
   getMaterial,
   getRecipe,
   type IngredientDescriptor,
-} from '@/recipe-repo';
+} from '@/data/recipe-repo';
 
 import arrow from '../assets/arrow.svg';
 import plus from '../assets/plus.svg';

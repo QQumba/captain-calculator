@@ -9,6 +9,7 @@ import {
   Background,
   Controls,
   MiniMap,
+  type OnSelectionChangeParams,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import { RecipeNode } from './components/recipe-node';
@@ -54,30 +55,31 @@ export default function Flow() {
     onEdgesChange,
     setViewport,
     onConnect,
+    removeNode,
   } = useFlowStore();
 
   useEffect(() => {
     setNodes(initialNodes);
+
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Delete') {
+        const { nodes, removeNode } = useFlowStore.getState();
+        const selected = nodes.filter((n) => n.selected);
+        selected.forEach((node) => removeNode(node.id));
+      }
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
   }, []);
 
-  // const [nodes, setNodes] = useState(initialNodes);
-  // const [edges, setEdges] = useState(initialEdges);
-
-  // const onNodesChange = useCallback(
-  //   (
-  //     changes: NodeChange<{
-  //       id: string;
-  //       position: { x: number; y: number };
-  //       data: { label: string };
-  //     }>[]
-  //   ) => setNodes((nodesSnapshot) => applyNodeChanges(changes, nodesSnapshot)),
-  //   []
-  // );
-  // const onEdgesChange = useCallback(
-  //   (changes: EdgeChange<{ id: string; source: string; target: string }>[]) =>
-  //     setEdges((edgesSnapshot) => applyEdgeChanges(changes, edgesSnapshot)),
-  //   []
-  // );
+  const onSelectionChange = useCallback((params: OnSelectionChangeParams) => {
+    setNodes((nodes) =>
+      nodes.map((n) => ({
+        ...n,
+        selected: params.nodes.some((sn) => sn.id === n.id),
+      }))
+    );
+  }, []);
 
   return (
     <div className="w-full h-full">
@@ -89,6 +91,8 @@ export default function Flow() {
         onEdgesChange={onEdgesChange}
         onConnect={onConnect}
         fitView
+        selectNodesOnDrag={false}
+        onSelectionChange={onSelectionChange}
       >
         <Background gap={10} color="#d7dce0" bgColor="#f7f9fb" />
         <Controls />

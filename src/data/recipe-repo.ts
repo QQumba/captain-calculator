@@ -1,12 +1,13 @@
-import oilIcon from './assets/Medium_Oil.png';
-import crudeOil from './assets/Crude_Oil.png';
-import heavyOil from './assets/Heavy_Oil.png';
-import sourWater from './assets/Sour_Water.png';
-import steamIcon from './assets/SteamHp.png';
-import dieselIcon from './assets/Diesel.png';
-import exhaustIcon from './assets/Exhaust.png';
-import refinery_1 from './assets/Distillation_(Stage_I).png';
-import refinery_2 from './assets/Distillation_(Stage_II).png';
+import oilIcon from '../assets/Medium_Oil.png';
+import crudeOil from '../assets/Crude_Oil.png';
+import heavyOil from '../assets/Heavy_Oil.png';
+import lightOil from '../assets/Light_Oil.png';
+import sourWater from '../assets/Sour_Water.png';
+import steamIcon from '../assets/SteamHp.png';
+import dieselIcon from '../assets/Diesel.png';
+import exhaustIcon from '../assets/Exhaust.png';
+import refinery_1 from '../assets/Distillation_(Stage_I).png';
+import refinery_2 from '../assets/Distillation_(Stage_II).png';
 
 export type RecipeDescriptor = {
   recipeId: string;
@@ -84,11 +85,11 @@ const recipes: RecipeDescriptor[] = [
     inputs: [
       {
         materialId: 'medium_oil',
-        amount: 60,
+        amount: 48,
       },
       {
         materialId: 'steam',
-        amount: 9,
+        amount: 3,
       },
     ],
     outputs: [
@@ -97,8 +98,8 @@ const recipes: RecipeDescriptor[] = [
         amount: 36,
       },
       {
-        materialId: 'exhaust',
-        amount: 16,
+        materialId: 'light_oil',
+        amount: 30,
       },
     ],
   },
@@ -121,6 +122,11 @@ const materials: Material[] = [
   {
     materialId: 'medium_oil',
     icon: oilIcon,
+    type: 'fluid',
+  },
+  {
+    materialId: 'light_oil',
+    icon: lightOil,
     type: 'fluid',
   },
   {

@@ -4,12 +4,16 @@ import {
   getRecipe,
   type IngredientDescriptor,
   type Machine,
-} from '../recipe-repo';
+} from '../data/recipe-repo';
 import Worker from '../assets/Worker.png';
 import Maintenance from '../assets/Maintenance.png';
 import Electricity from '../assets/Electricity.png';
 import { useEffect, useRef, useState } from 'react';
-import { Handle, Position } from '@xyflow/react';
+import { Handle, Position, useNodeId } from '@xyflow/react';
+import { Trash2 } from 'lucide-react';
+import { useFlowStore } from '@/stores/chart-store';
+import { Tooltip, TooltipTrigger } from './ui/tooltip';
+import { TooltipContent } from '@radix-ui/react-tooltip';
 
 type IngredientType = 'input' | 'output';
 
@@ -21,18 +25,35 @@ type IngredientType = 'input' | 'output';
 //   type: IngredientType;
 // };
 
-export function RecipeNode({ data }: { data: { recipeId: string } }) {
+export function RecipeNode({
+  id,
+  data,
+  selected,
+}: {
+  id: string;
+  data: { recipeId: string };
+  selected: boolean;
+}) {
+  const { removeNode } = useFlowStore();
+
   const recipe = getRecipe(data.recipeId);
   const machine = getMachine(recipe.machineId);
 
   return (
-    <div className="rounded bg-white border border-neutral-200 flex flex-col items-center min-w-60">
-      <div className="flex items-center justify-start gap-1 w-full px-4">
+    <div
+      className={`rounded border flex flex-col items-center min-w-60 transition-colors bg-white border-neutral-200 outline-2 ${
+        selected ? 'outline-blue-400' : 'outline-transparent'
+      }`}
+    >
+      <div className="flex items-center justify-around gap-2 w-full px-4">
         <div className="h-[32px] w-[32px] p-[2px]">
           <img src={machine.icon} alt="" />
         </div>
         <div className="py-2 font-light">{machine.name}</div>
-        <div className="content-none"></div>
+        <Trash2
+          className="h-4 w-4 text-red-600 cursor-pointer hover:text-red-700 transition-colors"
+          onClick={() => removeNode(id!)}
+        ></Trash2>
       </div>
       <div className="flex w-full px-4">
         <div className="content-none border-t border-neutral-300 grow h-[1px]"></div>
@@ -77,7 +98,7 @@ function MachineInfo({ machine }: { machine: Machine }) {
 
   function MachineInfoElement({ icon, text }: { icon: string; text: string }) {
     return (
-      <div className="rounded-sm border border-neutral-300 px-1">
+      <div className="rounded-xs border border-neutral-300 px-1 py-0.5 text-sm">
         <div className="flex items-center gap-1 opacity-60">
           <div>{text}</div>
           <img
@@ -128,7 +149,7 @@ function IngredientInfo({
 
   return (
     <div
-      className="flex items-center gap-1 font-(family-name:--font-numeric)"
+      className="flex items-center gap-1 font-(family-name:--font-numeric) text-sm leading-2"
       style={{ transform: `translateX(${offset}px)` }}
     >
       {type === 'input' ? inputLayout() : outputLayout()}
@@ -170,15 +191,22 @@ function IngredientInfo({
 
 function MaterialIcon({ icon }: { icon: string }) {
   return (
-    <div className="h-[24px] w-[24px] p-[2px] border border-neutral-300 rounded-sm">
-      <img className="h-full w-full" src={icon} />
-    </div>
+    <Tooltip delayDuration={50}>
+      <TooltipTrigger asChild>
+        <div className="h-[24px] w-[24px] p-[4px] border border-neutral-300 rounded-xs">
+          <img className="h-full w-full" src={icon} />
+        </div>
+      </TooltipTrigger>
+      <TooltipContent>
+        <p>hello</p>
+      </TooltipContent>
+    </Tooltip>
   );
 }
 
 function MaterialAmount({ amount }: { amount: number }) {
   return (
-    <div className="h-[24px] min-w-[24px] p-[2px] border border-neutral-300 rounded-sm flex items-center justify-center text-neutral-500">
+    <div className="h-[24px] min-w-[24px] p-[2px] border border-neutral-300 rounded-xs flex items-center justify-center text-neutral-500">
       {amount}
     </div>
   );
@@ -218,7 +246,7 @@ function MaterialHandle({
       id={materialId}
     >
       <div
-        className={`text-neutral-100 min-w-[24px] h-[24px] ${color} flex items-center justify-center rounded-sm`}
+        className={`text-neutral-100 min-w-[24px] h-[24px] ${color} flex items-center justify-center rounded-xs`}
       >
         {amountUsed}
       </div>
