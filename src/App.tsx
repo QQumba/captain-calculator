@@ -1,6 +1,10 @@
+import RecipeCard from './components/recipe-card';
 import Flow from './flow';
+import { getRecipeIds } from './recipe-repo';
 
 function App() {
+  const recipes = getRecipeIds();
+
   return (
     <>
       <div className="h-[100vh] flex flex-col">
@@ -10,8 +14,11 @@ function App() {
           </span>
         </nav>
         <div className="flex h-full">
-          <div className="border-r bg-slate-50 border-r-slate-200 p-4 w-[16em] flex flex-col items-center">
-            Sidebar
+          <div className="border-r bg-slate-50 border-r-slate-200 p-4 w-[24em] flex flex-col items-center gap-2">
+            <div>Sidebar</div>
+            {recipes.map((x) => (
+              <RecipeCard key={x} recipeId={x}></RecipeCard>
+            ))}
           </div>
           <div className="h-[100%] flex-1">
             <Flow></Flow>
