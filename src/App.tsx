@@ -1,11 +1,13 @@
 import RecipeCard from './components/recipe-card';
 import Flow from './flow';
-import { getRecipeIds } from './data/recipe-repo';
+import { getRecipeIds } from './data/recipes';
 import {
   Tooltip,
   TooltipContent,
+  TooltipProvider,
   TooltipTrigger,
 } from './components/ui/tooltip';
+import { ReactFlowProvider } from '@xyflow/react';
 
 function App() {
   const recipes = getRecipeIds();
@@ -25,13 +27,13 @@ function App() {
         </nav>
         <div className="flex h-full">
           <div className="border-r bg-slate-50 border-r-slate-200 p-4 w-[24em] flex flex-col items-center gap-2">
-            <div>Sidebar</div>
             {recipes.map((x) => (
               <RecipeCard key={x} recipeId={x}></RecipeCard>
             ))}
           </div>
           <div className="h-[100%] flex-1">
             <Flow></Flow>
+            <div id="tooltip-root" />
           </div>
         </div>
       </div>

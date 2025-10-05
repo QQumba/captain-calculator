@@ -1,10 +1,4 @@
-import {
-  getMachine,
-  getMaterial,
-  getRecipe,
-  type IngredientDescriptor,
-  type Machine,
-} from '../data/recipe-repo';
+import { getRecipe, type IngredientDescriptor } from '../data/recipes';
 import Worker from '../assets/Worker.png';
 import Maintenance from '../assets/Maintenance.png';
 import Electricity from '../assets/Electricity.png';
@@ -12,8 +6,9 @@ import { useEffect, useRef, useState } from 'react';
 import { Handle, Position, useNodeId } from '@xyflow/react';
 import { Trash2 } from 'lucide-react';
 import { useFlowStore } from '@/stores/chart-store';
-import { Tooltip, TooltipTrigger } from './ui/tooltip';
-import { TooltipContent } from '@radix-ui/react-tooltip';
+import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip';
+import { getMachine, type Machine } from '@/data/machines';
+import { getMaterial } from '@/data/materials';
 
 type IngredientType = 'input' | 'output';
 
@@ -102,7 +97,7 @@ function MachineInfo({ machine }: { machine: Machine }) {
         <div className="flex items-center gap-1 opacity-60">
           <div>{text}</div>
           <img
-            className="invert w-[16px] h-[16px]"
+            className="invert w-[14px] h-[14px]"
             src={icon}
             alt="Maintenance"
           />
@@ -167,7 +162,7 @@ function IngredientInfo({
           />
         </div>
         <MaterialAmount amount={ingredient.amount} />
-        <MaterialIcon icon={material.icon} />
+        <MaterialIcon icon={material.icon} name={material.materialId} />
       </>
     );
   }
@@ -175,7 +170,7 @@ function IngredientInfo({
   function outputLayout() {
     return (
       <>
-        <MaterialIcon icon={material.icon} />
+        <MaterialIcon icon={material.icon} name={material.materialId} />
         <MaterialAmount amount={ingredient.amount} />
         <div ref={handleRef}>
           <MaterialHandle
@@ -189,16 +184,16 @@ function IngredientInfo({
   }
 }
 
-function MaterialIcon({ icon }: { icon: string }) {
+function MaterialIcon({ icon, name }: { icon: string; name: string }) {
   return (
-    <Tooltip delayDuration={50}>
+    <Tooltip delayDuration={500}>
       <TooltipTrigger asChild>
         <div className="h-[24px] w-[24px] p-[4px] border border-neutral-300 rounded-xs">
           <img className="h-full w-full" src={icon} />
         </div>
       </TooltipTrigger>
       <TooltipContent>
-        <p>hello</p>
+        <p>{name}</p>
       </TooltipContent>
     </Tooltip>
   );

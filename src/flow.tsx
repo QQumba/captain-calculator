@@ -29,7 +29,7 @@ const initialNodes = [
   {
     id: 'n2',
     position: { x: 400, y: 20 },
-    data: { recipeId: 'crude_oil_refining' },
+    data: { recipeId: 'medium_oil_refining' },
     type: 'recipe',
   },
 ];

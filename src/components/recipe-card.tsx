@@ -1,13 +1,10 @@
-import {
-  getMachine,
-  getMaterial,
-  getRecipe,
-  type IngredientDescriptor,
-} from '@/data/recipe-repo';
+import { getRecipe, type IngredientDescriptor } from '@/data/recipes';
 
 import arrow from '../assets/arrow.svg';
 import plus from '../assets/plus.svg';
 import { useFlowStore } from '@/stores/chart-store';
+import { getMachine } from '@/data/machines';
+import { getMaterial } from '@/data/materials';
 
 export default function RecipeCard({ recipeId }: { recipeId: string }) {
   const recipe = getRecipe(recipeId);
@@ -16,10 +13,10 @@ export default function RecipeCard({ recipeId }: { recipeId: string }) {
 
   return (
     <div
-      className="rounded bg-white border border-neutral-200 flex items-center w-full p-2 text-xs select-none hover:shadow hover:cursor-pointer hover:bg-neutral-50 transition-all"
+      className="rounded bg-white border border-neutral-200 flex items-center w-full p-2 text-xs select-none hover:shadow hover:cursor-pointer hover:bg-neutral-50 transition-all gap-1"
       onClick={() => addNode({ data: { recipeId: recipeId }, type: 'recipe' })}
     >
-      <div className="h-[48px] w-[48px]">
+      <div className="h-[48px] w-[48px] bg-slate-100 border-2 border-slate-300 rounded p-0.5">
         <img src={machine.icon} alt="" />
       </div>
       <div className="flex items-center grow gap-1">
