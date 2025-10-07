@@ -1,24 +1,28 @@
-import { getRecipe, type IngredientDescriptor } from '../data/recipes';
-import Worker from '../assets/Worker.png';
-import Maintenance from '../assets/Maintenance.png';
-import Electricity from '../assets/Electricity.png';
+import { getRecipe } from '../data/recipes';
+import worker from '../assets/Worker.png';
+import maintenance from '../assets/Maintenance.png';
+import electricity from '../assets/Electricity.png';
 import { useEffect, useRef, useState } from 'react';
-import { Handle, Position, useNodeId } from '@xyflow/react';
+import { Handle, Position } from '@xyflow/react';
 import { Trash2 } from 'lucide-react';
 import { useFlowStore } from '@/stores/chart-store';
 import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip';
 import { getMachine, type Machine } from '@/data/machines';
 import { getMaterial } from '@/data/materials';
 
-type IngredientType = 'input' | 'output';
+type MaterialType = 'input' | 'output';
 
-// type IngredientData = {
-//   materialId: string;
-//   icon: string;
-//   amountTotal: number;
-//   amountUsed: number;
-//   type: IngredientType;
-// };
+export type RecipeNodeData = {
+  recipeId: string;
+  materials: RecipeNodeMaterialData[];
+};
+
+export type RecipeNodeMaterialData = {
+  materialId: string;
+  type: MaterialType;
+  amountTotal: number;
+  amountUsed: number;
+};
 
 export function RecipeNode({
   id,
@@ -26,7 +30,7 @@ export function RecipeNode({
   selected,
 }: {
   id: string;
-  data: { recipeId: string };
+  data: RecipeNodeData;
   selected: boolean;
 }) {
   const { removeNode } = useFlowStore();
@@ -36,8 +40,8 @@ export function RecipeNode({
 
   return (
     <div
-      className={`rounded border flex flex-col items-center min-w-60 transition-colors bg-white border-neutral-200 outline-2 ${
-        selected ? 'outline-blue-400' : 'outline-transparent'
+      className={`rounded border-2 flex flex-col items-center min-w-60 transition-colors hover:shadow ${
+        selected ? 'border-blue-400 bg-blue-50' : 'border-neutral-200 bg-white'
       }`}
     >
       <div className="flex items-center justify-around gap-2 w-full px-4">
@@ -55,14 +59,18 @@ export function RecipeNode({
       </div>
       <div className="flex justify-between w-full py-4 leading-2">
         <div className="flex flex-col gap-2">
-          {recipe.inputs.map((x) => (
-            <IngredientInfo key={x.materialId} ingredient={x} type={'input'} />
-          ))}
+          {data.materials
+            .filter((x) => x.type === 'input')
+            .map((x) => (
+              <IngredientInfo key={x.materialId} {...x} />
+            ))}
         </div>
         <div className="flex flex-col gap-2">
-          {recipe.outputs.map((x) => (
-            <IngredientInfo key={x.materialId} ingredient={x} type={'output'} />
-          ))}
+          {data.materials
+            .filter((x) => x.type === 'output')
+            .map((x) => (
+              <IngredientInfo key={x.materialId} {...x} />
+            ))}
         </div>
       </div>
       <div className="flex w-full px-4">
@@ -77,15 +85,15 @@ function MachineInfo({ machine }: { machine: Machine }) {
   return (
     <div className="flex gap-2 py-2">
       <MachineInfoElement
-        icon={Worker}
+        icon={worker}
         text={machine.workers.toString()}
       ></MachineInfoElement>
       <MachineInfoElement
-        icon={Electricity}
+        icon={electricity}
         text={machine.energyConsumption.toString()}
       ></MachineInfoElement>
       <MachineInfoElement
-        icon={Maintenance}
+        icon={maintenance}
         text={machine.maintenance.toString()}
       ></MachineInfoElement>
     </div>
@@ -123,21 +131,15 @@ function MachineInfo({ machine }: { machine: Machine }) {
 //   );
 // }
 
-function IngredientInfo({
-  ingredient,
-  type,
-}: {
-  ingredient: IngredientDescriptor;
-  type: IngredientType;
-}) {
+function IngredientInfo(data: RecipeNodeMaterialData) {
   const handleRef = useRef<HTMLDivElement>(null);
   const [offset, setOffset] = useState(-12);
   const amountUsed = 0;
-  const material = getMaterial(ingredient.materialId);
+  const material = getMaterial(data.materialId);
 
   useEffect(() => {
     if (handleRef.current) {
-      const offsetDirection = type === 'input' ? -1 : 1;
+      const offsetDirection = data.type === 'input' ? -1 : 1;
       setOffset((handleRef.current.offsetWidth / 2) * offsetDirection);
     }
   }, [amountUsed]);
@@ -147,7 +149,7 @@ function IngredientInfo({
       className="flex items-center gap-1 font-(family-name:--font-numeric) text-sm leading-2"
       style={{ transform: `translateX(${offset}px)` }}
     >
-      {type === 'input' ? inputLayout() : outputLayout()}
+      {data.type === 'input' ? inputLayout() : outputLayout()}
     </div>
   );
 
@@ -156,13 +158,13 @@ function IngredientInfo({
       <>
         <div ref={handleRef}>
           <MaterialHandle
-            type={type}
-            materialId={ingredient.materialId}
-            amountUsed={0}
+            type={data.type}
+            materialId={data.materialId}
+            amountUsed={data.amountUsed}
           />
         </div>
-        <MaterialAmount amount={ingredient.amount} />
-        <MaterialIcon icon={material.icon} name={material.materialId} />
+        <MaterialAmount amount={data.amountTotal} />
+        <MaterialIcon icon={material.icon} name={material.name} />
       </>
     );
   }
@@ -170,13 +172,13 @@ function IngredientInfo({
   function outputLayout() {
     return (
       <>
-        <MaterialIcon icon={material.icon} name={material.materialId} />
-        <MaterialAmount amount={ingredient.amount} />
+        <MaterialIcon icon={material.icon} name={material.name} />
+        <MaterialAmount amount={data.amountTotal} />
         <div ref={handleRef}>
           <MaterialHandle
-            type={type}
-            materialId={ingredient.materialId}
-            amountUsed={0}
+            type={data.type}
+            materialId={data.materialId}
+            amountUsed={data.amountUsed}
           />
         </div>
       </>
@@ -225,7 +227,7 @@ function MaterialHandle({
   materialId,
   amountUsed,
 }: {
-  type: IngredientType;
+  type: MaterialType;
   materialId: string;
   amountUsed: number;
 }) {

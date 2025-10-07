@@ -1,3 +1,5 @@
+import { getMaterial } from './materials';
+
 export type RecipeDescriptor = {
   recipeId: string;
   machineId: string;
@@ -88,7 +90,27 @@ const recipes: RecipeDescriptor[] = [
       },
     ],
   },
+  {
+    recipeId: 'steam_electric_1',
+    machineId: 'boiler_electric',
+    inputs: [
+      {
+        materialId: 'water',
+        amount: 12,
+      },
+    ],
+    outputs: [
+      {
+        materialId: 'steam_high',
+        amount: 12,
+      },
+    ],
+  },
 ];
+
+export function getRecipes() {
+  return recipes;
+}
 
 export function getRecipeIds() {
   return recipes.map((x) => x.recipeId);
@@ -96,4 +118,10 @@ export function getRecipeIds() {
 
 export function getRecipe(recipeId: string): RecipeDescriptor {
   return recipes.find((x) => x.recipeId == recipeId)!;
+}
+
+export function getRecipeOutputsNames(recipeId: string): string[] {
+  const recipe = getRecipe(recipeId);
+  const outputs = recipe.outputs.map((x) => getMaterial(x.materialId));
+  return outputs.map((x) => x.name);
 }

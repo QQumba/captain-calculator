@@ -1,11 +1,6 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useCallback, useEffect } from 'react';
 import {
   ReactFlow,
-  applyNodeChanges,
-  applyEdgeChanges,
-  addEdge,
-  type NodeChange,
-  type EdgeChange,
   Background,
   Controls,
   MiniMap,
@@ -14,36 +9,15 @@ import {
 import '@xyflow/react/dist/style.css';
 import { RecipeNode } from './components/recipe-node';
 import { useFlowStore } from './stores/chart-store';
+import RecipeEdge from './components/recipe-edge';
 
 const nodeTypes = {
   recipe: RecipeNode,
 };
 
-const initialNodes = [
-  {
-    id: 'n1',
-    position: { x: 0, y: 0 },
-    data: { recipeId: 'crude_oil_refining' },
-    type: 'recipe',
-  },
-  {
-    id: 'n2',
-    position: { x: 400, y: 20 },
-    data: { recipeId: 'medium_oil_refining' },
-    type: 'recipe',
-  },
-];
-
-const initialEdges = [
-  {
-    id: 'n1-n2',
-    source: 'n1',
-    sourceHandle: 'diesel',
-    target: 'n2',
-    targetHandle: 'oil',
-    animated: true,
-  },
-];
+const edgeTypes = {
+  recipe: RecipeEdge,
+};
 
 export default function Flow() {
   const {
@@ -59,13 +33,16 @@ export default function Flow() {
   } = useFlowStore();
 
   useEffect(() => {
-    setNodes(initialNodes);
-
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Delete') {
-        const { nodes, removeNode } = useFlowStore.getState();
-        const selected = nodes.filter((n) => n.selected);
-        selected.forEach((node) => removeNode(node.id));
+        const { nodes, edges, removeNode, removeEdge } =
+          useFlowStore.getState();
+
+        const selectedNodes = nodes.filter((n) => n.selected);
+        selectedNodes.forEach((node) => removeNode(node.id));
+
+        const selectedEdges = edges.filter((e) => e.selected);
+        selectedEdges.forEach((edge) => removeEdge(edge.id));
       }
     };
     window.addEventListener('keydown', onKeyDown);
@@ -87,14 +64,16 @@ export default function Flow() {
         nodes={nodes}
         edges={edges}
         nodeTypes={nodeTypes}
+        edgeTypes={edgeTypes}
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
         onConnect={onConnect}
         fitView
         selectNodesOnDrag={false}
         onSelectionChange={onSelectionChange}
+        snapToGrid
       >
-        <Background gap={10} color="#d7dce0" bgColor="#f7f9fb" />
+        <Background gap={20} size={2} color="#d7dce0" bgColor="#f7f9fb" />
         <Controls />
         <MiniMap />
       </ReactFlow>

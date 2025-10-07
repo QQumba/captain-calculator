@@ -1,20 +1,49 @@
-import { getRecipe, type IngredientDescriptor } from '@/data/recipes';
+import {
+  type IngredientDescriptor,
+  type RecipeDescriptor,
+} from '@/data/recipes';
 
 import arrow from '../assets/arrow.svg';
 import plus from '../assets/plus.svg';
 import { useFlowStore } from '@/stores/chart-store';
 import { getMachine } from '@/data/machines';
 import { getMaterial } from '@/data/materials';
+import type { RecipeNodeMaterialData } from './recipe-node';
 
-export default function RecipeCard({ recipeId }: { recipeId: string }) {
-  const recipe = getRecipe(recipeId);
+export default function RecipeCard({ recipe }: { recipe: RecipeDescriptor }) {
   const machine = getMachine(recipe.machineId);
   const { addNode } = useFlowStore();
 
+  function getMaterialData(): RecipeNodeMaterialData[] {
+    const inputs: RecipeNodeMaterialData[] = recipe.inputs.map((input) => ({
+      materialId: input.materialId,
+      amountTotal: input.amount,
+      amountUsed: 0,
+      type: 'input',
+    }));
+
+    const outputs: RecipeNodeMaterialData[] = recipe.outputs.map((output) => ({
+      materialId: output.materialId,
+      amountTotal: output.amount,
+      amountUsed: 0,
+      type: 'output',
+    }));
+
+    return inputs.concat(outputs);
+  }
+
   return (
     <div
-      className="rounded bg-white border border-neutral-200 flex items-center w-full p-2 text-xs select-none hover:shadow hover:cursor-pointer hover:bg-neutral-50 transition-all gap-1"
-      onClick={() => addNode({ data: { recipeId: recipeId }, type: 'recipe' })}
+      className="rounded bg-white shadow border border-neutral-200 flex items-center w-full p-2 text-xs select-none hover:shadow hover:cursor-pointer hover:bg-neutral-50 transition-all gap-1"
+      onClick={() =>
+        addNode({
+          data: {
+            recipeId: recipe.recipeId,
+            materials: getMaterialData(),
+          },
+          type: 'recipe',
+        })
+      }
     >
       <div className="h-[48px] w-[48px] bg-slate-100 border-2 border-slate-300 rounded p-0.5">
         <img src={machine.icon} alt="" />
